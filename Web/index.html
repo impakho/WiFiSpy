@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>数据综合管理系统</title>
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.css">
+  <link rel="stylesheet" href="stylesheets/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" href="stylesheets/bootstrap-table.min.css">
+  <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.css">
+
+  <link rel="stylesheet" type="text/css" href="stylesheets/theme.css">
+  <link rel="stylesheet" type="text/css" href="stylesheets/premium.css">
+
+  <link rel="stylesheet" href="stylesheets/swiper-3.4.2.min.css">
+  <link rel="stylesheet" href="stylesheets/DrawingManager_min.css">
+
+  <script type="text/javascript" src="lib/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+
+  <script type="text/javascript" src="js/swiper-3.4.2.jquery.min.js"></script>
+  <script type="text/javascript" src="js/v2.0.min.js"></script>
+  <script type="text/javascript" src="js/DrawingManager_min.js"></script>
+
+  <script src="js/vue.js"></script>
+  <script src="js/geo.js"></script>
+
+  <style>
+    html, body{height:100%;overflow-x:hidden;overflow-y:hidden;}
+    .offset_left{margin-left:20px;}
+    .offset_top{padding-top:5px;}
+    .anchorBL{display:none;}
+    .modal{overflow-x:hidden;overflow-y:hidden;}
+    .sidebar-nav{overflow-x:hidden;overflow-y:visible;}
+    .content{overflow-x:hidden;overflow-y:hidden;}
+    .main-content{overflow-x:hidden;overflow-y:hidden;}
+  </style>
+
+</head>
+
+<body class="theme-blue">
+  <script type="text/javascript">
+    $(function() {
+      var cookie_color = $.cookie('color');
+      if (cookie_color) {
+          $('body').removeClass(function (index, css) {
+              return (css.match (/\btheme-\S+/g) || []).join(' ');
+          })
+          $('body').addClass('theme-' + cookie_color);
+      }
+      $('[data-popover="true"]').popover({html: true});
+    });
+  </script>
+  <style type="text/css">
+    .navbar-default .navbar-brand, .navbar-default .navbar-brand:hover{color: #fff;}
+  </style>
+  <script type="text/javascript">
+    $(function() {
+      var uls = $('.sidebar-nav > ul > *').clone();
+      uls.addClass('visible-xs');
+      $('#main-menu').append(uls.clone());
+    });
+  </script>
+
+  <!--[if lt IE 9]>
+    <script src="js/html5shiv.min.js"></script>
+  <![endif]-->
+
+  <!--[if lt IE 7 ]> <body class="ie ie6"> <![endif]-->
+  <!--[if IE 7 ]> <body class="ie ie7 "> <![endif]-->
+  <!--[if IE 8 ]> <body class="ie ie8 "> <![endif]-->
+  <!--[if IE 9 ]> <body class="ie ie9 "> <![endif]-->
+  <!--[if (gt IE 9)|!(IE)]><!-->
+
+  <!--<![endif]-->
+
+  <div class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="" href="index.html"><span class="navbar-brand"><span class="fa fa-paper-plane"></span>&nbsp;&nbsp;数据综合管理系统</span></a>
+    </div>
+
+    <div class="navbar-collapse collapse" style="height: 1px;">
+      <ul id="main-menu" class="nav navbar-nav navbar-right">
+        <li class="dropdown hidden-xs">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-user padding-right-small" style="position:relative;top: 3px;"></span>测试用户
+            <i class="fa fa-caret-down"></i>
+          </a>
+
+          <ul class="dropdown-menu">
+            <li><a href="#">我的帐号</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">管理员面板</li>
+            <li><a href="#">用户管理</a></li>
+            <li><a href="#">系统安全</a></li>
+            <li class="divider"></li>
+            <li><a tabindex="-1" href="#">登出</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-nav" id="sidebar-nav">
+    <ul>
+      <li><a href="#" data-target=".dashboard-menu" class="nav-header" data-toggle="collapse"><i class="fa fa-fw fa-dashboard"></i> 面板<i class="fa fa-collapse"></i></a></li>
+      <li><ul class="dashboard-menu nav nav-list collapse in">
+        <li><a href="#" data-toggle="modal" data-target="#modal_getdevice"><span class="fa fa-caret-right"></span> 局端搜索</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#modal_getap"><span class="fa fa-caret-right"></span> 无线热点搜索</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#modal_getsta"><span class="fa fa-caret-right"></span> 用户搜索</a></li>
+        <li><a href="#" onclick="search_init();mySwiper.slideTo(1);"><span class="fa fa-caret-right"></span> 综合查询</a></li>
+        <li><a href="#" onclick="alert('Work in progress.');"><span class="fa fa-caret-right"></span> 布控预警</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#modal_stats" onclick="stats_load();"><span class="fa fa-caret-right"></span> 数据统计</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#modal_geo"><span class="fa fa-caret-right"></span> 坐标转换</a></li>
+        <li><a href="#" data-toggle="modal" data-target="#modal_settings" onclick="settings_init();"><span class="fa fa-caret-right"></span> 个性化设置</a></li>
+      </ul></li>
+    </ul>
+  </div>
+
+  <div class="content" style="padding:0;min-height:400px;">
+    <div class="main-content">
+
+      <!-- 覆盖物右键菜单 -->
+      <div id="context-menu">
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#" value="del">移除</a></li>
+        </ul>
+      </div>
+
+      <!-- 局端搜索对话框 -->
+      <div class="modal fade" id="modal_getdevice" tabindex="9999" role="dialog" aria-labelledby="modal_getdevice_label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_getdevice_label">局端搜索</h4>
+            </div>
+            <div class="modal-body">
+              <p><label><input name="getdevice_option1" type="radio" value="1" checked="checked">&nbsp;&nbsp;显示全部</label></p>
+              <p><label><input name="getdevice_option1" type="radio" value="2">&nbsp;&nbsp;中心点范围</label></p>
+              <p><span class="offset_left" />半径（千米）：<input type="text" class="form-control" style="width:128px;display:inline;" name="text1" v-on:keypress="isNumber(event)" value="1"></p>
+              <p class="offset_top"><label><input name="getdevice_option1" type="radio" value="3">&nbsp;&nbsp;自定义范围</label></p>
+              <p><label><input name="getdevice_option1" type="radio" value="4">&nbsp;&nbsp;指定设备</label></p>
+              <p><span class="offset_left" />设备地址（MAC）：<input type="text" class="form-control" style="width:192px;display:inline;" name="text2">（多个地址，使用“;”分隔）</p>
+              <p class="offset_top">操作：</p>
+              <p><span class="offset_left" /><label><input name="getdevice_option2" type="radio" value="1" checked="checked">&nbsp;&nbsp;追加</label>
+              <span class="offset_left" /><label><input name="getdevice_option2" type="radio" value="2">&nbsp;&nbsp;重置</label></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="button" class="btn btn-primary" onclick="$('#modal_getdevice').modal('hide');getdevice();">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 局端操作对话框 -->
+      <div class="modal fade" id="modal_dodevice" tabindex="9999" role="dialog" aria-labelledby="modal_dodevice_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:900px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_dodevice_label">局端设备</h4>
+            </div>
+            <div class="modal-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 无线热点搜索对话框 -->
+      <div class="modal fade" id="modal_getap" tabindex="9999" role="dialog" aria-labelledby="modal_getap_label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_getap_label">无线热点搜索</h4>
+            </div>
+            <div class="modal-body">
+              <p><label><input name="getap_option1" type="radio" value="1" checked="checked">&nbsp;&nbsp;显示全部</label></p>
+              <p><label><input name="getap_option1" type="radio" value="2">&nbsp;&nbsp;中心点范围</label></p>
+              <p><span class="offset_left" />半径（千米）：<input type="text" class="form-control" style="width:128px;display:inline;" name="text1" v-on:keypress="isNumber(event)" value="1"></p>
+              <p class="offset_top"><label><input name="getap_option1" type="radio" value="3">&nbsp;&nbsp;自定义范围</label></p>
+              <p><label><input name="getap_option1" type="radio" value="4">&nbsp;&nbsp;指定设备</label></p>
+              <p><span class="offset_left" />设备地址（BSSID）：<input type="text" class="form-control" style="width:192px;display:inline;" name="text2">（多个地址，使用“;”分隔）</p>
+              <p class="offset_top">状态：</p>
+              <p><span class="offset_left" /><label><input name="getap_option2" type="radio" value="1" checked="checked">&nbsp;&nbsp;所有</label>
+              <span class="offset_left" /><label><input name="getap_option2" type="radio" value="2">&nbsp;&nbsp;在线</label>
+              <span class="offset_left" /><label><input name="getap_option2" type="radio" value="3">&nbsp;&nbsp;离线</label></p>
+              <p class="offset_top">操作：</p>
+              <p><span class="offset_left" /><label><input name="getap_option3" type="radio" value="1" checked="checked">&nbsp;&nbsp;追加</label>
+              <span class="offset_left" /><label><input name="getap_option3" type="radio" value="2">&nbsp;&nbsp;重置</label></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="button" class="btn btn-primary" onclick="$('#modal_getap').modal('hide');getap();">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 无线热点操作对话框 -->
+      <div class="modal fade" id="modal_doap" tabindex="9999" role="dialog" aria-labelledby="modal_doap_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:900px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_doap_label">无线热点设备</h4>
+            </div>
+            <div class="modal-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用户搜索对话框 -->
+      <div class="modal fade" id="modal_getsta" tabindex="9999" role="dialog" aria-labelledby="modal_getsta_label" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_getsta_label">用户搜索</h4>
+            </div>
+            <div class="modal-body">
+              <p>设备地址（MAC）：（多个地址，使用“;”分隔）</p>
+              <p class="offset_top"><input type="text" class="form-control" style="width:95%;display:inline;margin:10px;" name="text1"></p>
+              <p class="offset_top">时间：&nbsp;&nbsp;从&nbsp;&nbsp;<input type="text" id="getsta_datetime_start" class="form-control form_datetime" style="width:172px;display:inline;" readonly>
+              &nbsp;到&nbsp;&nbsp;<input type="text" id="getsta_datetime_end" class="form-control form_datetime" style="width:172px;display:inline;" readonly></p>
+              <p style="margin-top:10px;">外观：
+              <span class="offset_left" /><label><input name="getsta_option1" type="radio" value="1" checked="checked">&nbsp;红</label>
+              <span class="offset_left" /><label><input name="getsta_option1" type="radio" value="2">&nbsp;蓝</label>
+              <span class="offset_left" /><label><input name="getsta_option1" type="radio" value="3">&nbsp;绿</label>
+              <span class="offset_left" /><label><input name="getsta_option1" type="radio" value="4">&nbsp;橙</label>
+              <span class="offset_left" /><label><input name="getsta_option1" type="radio" value="5">&nbsp;黑</label></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="button" class="btn btn-primary" onclick="$('#modal_getsta').modal('hide');getsta();">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 用户操作对话框 -->
+      <div class="modal fade" id="modal_dosta" tabindex="9999" role="dialog" aria-labelledby="modal_dosta_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:900px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_dosta_label">用户设备</h4>
+            </div>
+            <div class="modal-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据统计对话框 -->
+      <div class="modal fade" id="modal_stats" tabindex="9999" role="dialog" aria-labelledby="modal_stats_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:900px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_stats_label">数据统计</h4>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <style type="text/css">.stats-div{width:100%;text-align:center;}</style>
+                <div class="col-md-4"><div class="stats-div"><h3>局端设备数</h3></div><div class="stats-div"><h1 id="stats_device">None</h1></div></div>
+                <div class="col-md-4"><div class="stats-div"><h3>无线热点采集量</h3></div><div class="stats-div"><h1 id="stats_ap">None</h1></div></div>
+                <div class="col-md-4"><div class="stats-div"><h3>用户设备日志量</h3></div><div class="stats-div"><h1 id="stats_sta">None</h1></div></div>
+              </div>
+              <div style="margin-top:50px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 坐标转换对话框 -->
+      <div class="modal fade" id="modal_geo" tabindex="9999" role="dialog" aria-labelledby="modal_geo_label" aria-hidden="true">
+        <div class="modal-dialog" style="width:700px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title" id="modal_geo_label">坐标转换</h4>
+            </div>
+            <div class="modal-body">
+              <p class="offset_top">坐标：<span class="offset_left" /><input type="text" class="form-control" style="width:360px;display:inline;" v-model="text1" name="text1" v-on:input="isGeoPoint(0)">
+              <span class="offset_left" /><button type="button" class="btn btn-default" name="button1" v-on:click="reset">清空</button></p>
+              <p class="offset_top"><span class="offset_left" /><span class="offset_left" /><span class="offset_left" />（经纬度坐标，用英文逗号“,”或空格“ ”分隔）</p>
+              <p style="margin-top:15px;">类型：
+              <span class="offset_left" /><label><input v-model="geo_option1" type="radio" id="geo_option1_1" value="1" v-on:click="isGeoPoint(1)">&nbsp;百度坐标（BD09）</label>
+              <span class="offset_left" /><label><input v-model="geo_option1" type="radio" id="geo_option1_2" value="2" v-on:click="isGeoPoint(2)">&nbsp;国测局坐标 / 火星坐标（GCJ02）</label>
+              <span class="offset_left" /><label><input v-model="geo_option1" type="radio" id="geo_option1_3" value="3" v-on:click="isGeoPoint(3)">&nbsp;地球坐标（WGS84）</label></p>
+              <p style="margin-top:15px;"><strong>转换结果</strong></p>
+              <div class="form-horizontal" style="margin-top:10px;">
+                <div class="form-group">
+                  <div class="col-md-3 control-label">地球坐标</div>
+                  <div class="col-md-7"><input type="text" class="form-control" v-model="text2" name="text2" onclick="$(this).select();" readonly></div>
+                </div>
+                <div class="form-group">
+                  <div class="col-md-3 control-label">国测局坐标 / 火星坐标</div>
+                  <div class="col-md-7"><input type="text" class="form-control" v-model="text3" name="text3" onclick="$(this).select();" readonly></div>
+                </div>
+                <div class="form-group">
+                  <div class="col-md-3 control-label">百度坐标</div>
+                  <div class="col-md-7"><input type="text" class="form-control" v-model="text4" name="text4" onclick="$(this).select();" readonly></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 个性化设置对话框 -->
+      <div class="modal fade" id="modal_settings" tabindex="9999" role="dialog" aria-labelledby="modal_settings_label" aria-hidden="true">
+        <div class="modal-dialog" style="margin-top:150px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="settings_false();">&times;</button>
+              <h4 class="modal-title" id="modal_settings_label">个性化设置</h4>
+            </div>
+            <div class="modal-body">
+              <p>界面配色：<label><input name="settings_option1" type="radio" value="1" onclick="settings_set(this.name,this.value);" checked="checked">&nbsp;灰蓝</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="2" onclick="settings_set(this.name,this.value);">&nbsp;深灰</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="3" onclick="settings_set(this.name,this.value);">&nbsp;孔雀蓝</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="4" onclick="settings_set(this.name,this.value);">&nbsp;淡蓝</label></p>
+              <p class="offset_top"><span class="offset_left" /><span class="offset_left" /><span class="offset_left" />
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="5" onclick="settings_set(this.name,this.value);">&nbsp;香槟金</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="6" onclick="settings_set(this.name,this.value);">&nbsp;暗蓝</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="7" onclick="settings_set(this.name,this.value);">&nbsp;淡灰</label>
+              <span class="offset_left" /><label><input name="settings_option1" type="radio" value="8" onclick="settings_set(this.name,this.value);">&nbsp;黑金</label></p>
+              <p class="offset_top">自动定位：<label><input name="settings_option2" type="radio" value="1" checked="checked">&nbsp;开启</label>
+              <span class="offset_left" /><label><input name="settings_option2" type="radio" value="2">&nbsp;关闭</label></p>
+              <p class="offset_top">绘图工具：<label><input name="settings_option3" type="radio" value="1" onclick="settings_set(this.name,this.value);" checked="checked">&nbsp;开启</label>
+              <span class="offset_left" /><label><input name="settings_option3" type="radio" value="2" onclick="settings_set(this.name,this.value);">&nbsp;关闭</label></p>
+              <p class="offset_top">小地图：<label><input name="settings_option4" type="radio" value="1" onclick="settings_set(this.name,this.value);" checked="checked">&nbsp;开启</label>
+              <span class="offset_left" /><label><input name="settings_option4" type="radio" value="2" onclick="settings_set(this.name,this.value);">&nbsp;关闭</label></p>
+              <p class="offset_top">比例尺：<label><input name="settings_option5" type="radio" value="1" onclick="settings_set(this.name,this.value);" checked="checked">&nbsp;开启</label>
+              <span class="offset_left" /><label><input name="settings_option5" type="radio" value="2" onclick="settings_set(this.name,this.value);">&nbsp;关闭</label></p>
+              <p class="offset_top">定位按钮：<label><input name="settings_option6" type="radio" value="1" onclick="settings_set(this.name,this.value);" checked="checked">&nbsp;开启</label>
+              <span class="offset_left" /><label><input name="settings_option6" type="radio" value="2" onclick="settings_set(this.name,this.value);">&nbsp;关闭</label></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal" onclick="settings_false();">关闭</button>
+              <button type="button" class="btn btn-primary" onclick="$('#modal_settings').modal('hide');settings_true();">确定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主界面翻页 -->
+      <div class="swiper-container">
+        <div class="swiper-wrapper swiper-no-swiping">
+
+          <!-- 翻页1：百度地图容器 -->
+          <div class="swiper-slide">
+            <div style="border:1px solid gray;width:100%;height:100%;" id="map-container" class="disabled"></div>
+          </div>
+
+          <!-- 翻页2：综合查询 -->
+          <div class="swiper-slide">
+            <div style="margin:0px;padding:20px;padding-left:35px;padding-right:40px;width:100%;height:100%;overflow-x:hidden;overflow-y:auto;" id="search-container">
+              <div class="row">
+                <button type="button" class="btn btn-default" onclick="mySwiper.slideTo(0);">返回</button>
+              </div>
+              <div class="row" style="margin-top:15px;">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#search_device" data-toggle="tab" onclick="$(this).blur();">局端设备</a></li>
+                  <li><a href="#search_ap" data-toggle="tab" onclick="$(this).blur();">热点设备</a></li>
+                  <li><a href="#search_sta" data-toggle="tab" onclick="$(this).blur();">用户设备</a></li>
+              </div>
+              <div class="row">
+                <div class="tab-content">
+                  <div class="tab-pane fade in active" id="search_device">
+                    <table id="search_table_device"><thead><tr><th>局端地址</th><th>名称</th><th>经度</th><th>纬度</th><th>最后活动时间</th></tr></thead></table>
+                  </div>
+                  <div class="tab-pane fade" id="search_ap">
+                    <table id="search_table_ap"><thead><tr><th>状态</th><th>局端地址</th><th>SSID</th><th>BSSID</th><th>创建时间</th><th>更新时间</th><th>频道</th><th>是否加密</th><th>距离（米）</th></tr></thead></table>
+                  </div>
+                  <div class="tab-pane fade" id="search_sta">
+                    <table id="search_table_sta"><thead><tr><th>局端地址</th><th>记录时间</th><th>设备地址</th><th>BSSID</th><th>操作类型</th><th>距离（米）</th></tr></thead></table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="text/javascript" src="js/bdmap.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.js"></script>
+  <script src="js/bootstrap-datetimepicker.min.js"></script>
+  <script src="js/bootstrap-datetimepicker.zh-CN.js"></script>
+  <script src="js/bootstrap-table.min.js"></script>
+  <script src="js/bootstrap-table-zh-CN.min.js"></script>
+  <script src="js/bootstrap-contextmenu.min.js"></script>
+  <script type="text/javascript" src="js/jquery.bootstrap-growl.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap-paginator.min.js"></script>
+  <script type="text/javascript" src="js/custom.js"></script>
+
+</body>
+</html>
